@@ -1,4 +1,4 @@
-const VERSION = "0.6.40";
+const VERSION = "0.6.41";
 const STORAGE_KEY = `momcozy-q1-complete-use-v${VERSION}`;
 const DEVICE_VIEWPORT = Object.freeze({ width: 402, height: 874 });
 
@@ -648,7 +648,7 @@ function renderControl(screen) {
   return `${baseImage(screen)}
     <div class="control-base-button-mask" aria-hidden="true"></div>
     ${screen.id === "control" ? `<div class="control-ready-patch">${icon("circle-check")}<strong>Ready to Pump</strong></div>` : ""}
-    ${programIsActive ? `<div class="control-program-summary" aria-label="Active program ${escapeHtml(activeProgramName)}"><span><strong>${escapeHtml(activeProgramName)}</strong><small>Sequential program is running.</small></span><span class="control-program-switch">Switch ${icon("chevron-right")}</span></div>` : ""}
+    ${programIsActive ? `<div class="control-program-summary" aria-label="Active program ${escapeHtml(activeProgramName)}"><span><strong>${escapeHtml(activeProgramName)}</strong><small>${screen.id === "pumping-active" ? "Sequential program is running." : "Program selected and ready to start."}</small></span><span class="control-program-switch">Switch ${icon("chevron-right")}</span></div>` : ""}
     <div class="control-mode-selector">${modeButtons}</div>
     <div class="control-level-stepper">
       <button type="button" data-action="level-down" aria-label="降低吸力档位">${icon("minus")}</button>
@@ -700,49 +700,35 @@ function renderPumpingSessionLogged(screen) {
 }
 
 function renderModeList(screen) {
-  const manualModes = [
-    { value: "Stimulation", label: "Stimulation", description: "Gentle and comfortable", icon: "heart" },
-    { value: "Expression", label: "Expression", description: "Fast-paced and intense", icon: "droplet" },
-    { value: "Mixed", label: "Mixed", description: "Fast-paced and intense", icon: "shuffle" },
-    { value: "Milk initiation", label: "Milk initiation", description: "Helps initiate milk supply", icon: "sparkles" }
-  ];
-  const modeButtons = manualModes.map((mode) => `<button type="button" class="mode-list-option" data-action="request-mode-switch" data-mode="${mode.value}" aria-pressed="${!state.activeProgramName && state.modeName === mode.value}">
-    <span class="mode-list-option-icon">${icon(mode.icon)}</span>
-    <span class="mode-list-option-copy"><strong>${mode.label}</strong><small>${mode.description}</small></span>
-    <span class="mode-list-option-selected">${icon("audio-waveform")}</span>
-  </button>`).join("");
-
   return `${baseImage(screen)}
-    <div class="mode-list-selector" aria-label="手动韵律选择">${modeButtons}</div>
-    ${hotspot("back", "关闭韵律列表", 0, 6.3, 18, 9)}
-    ${hotspot("open-program-new", "Create Program", 70, 56.4, 27, 6.5)}
-    ${hotspot("request-program-run", "运行 Milk Boost Mode P1", 4.5, 62.2, 91, 16.8, 'data-program="Milk Boost Mode P1"')}
-    ${hotspot("request-program-run", "运行 Milk Boost Mode P2", 4.5, 80.2, 91, 16.8, 'data-program="Milk Boost Mode P2"')}
-    ${hotspot("open-program-detail", "查看 Milk Boost Mode P1 详情", 72, 62.8, 23.5, 5.4, 'data-program="Milk Boost Mode P1"')}
-    ${hotspot("open-program-detail", "查看 Milk Boost Mode P2 详情", 72, 80.8, 23.5, 5.4, 'data-program="Milk Boost Mode P2"')}`;
+    ${figmaHotspot("back", "关闭韵律列表", 2.8, 14.8, 14, 6.2)}
+    ${figmaHotspot("request-mode-switch", "切换到 Stimulation", 3.8, 26.6, 92.4, 7.1, 'data-mode="Stimulation"')}
+    ${figmaHotspot("request-mode-switch", "切换到 Expression", 3.8, 34.7, 92.4, 7.1, 'data-mode="Expression"')}
+    ${figmaHotspot("request-mode-switch", "切换到 Mixed", 3.8, 42.7, 92.4, 7.1, 'data-mode="Mixed"')}
+    ${figmaHotspot("request-mode-switch", "切换到 Milk initiation", 3.8, 50.8, 92.4, 7.1, 'data-mode="Milk initiation"')}
+    ${figmaHotspot("open-program-new", "Create Program", 72, 59.6, 24, 4.7)}
+    ${figmaHotspot("request-program-run", "切换到 Milk Boost Mode P1", 5.2, 64.5, 89.6, 14.7, 'data-program="Milk Boost Mode P1"')}
+    ${figmaHotspot("request-program-run", "切换到 Milk Boost Mode P2", 5.2, 80.3, 89.6, 14.7, 'data-program="Milk Boost Mode P2"')}
+    ${figmaHotspot("open-program-detail", "查看 Milk Boost Mode P1 详情", 73, 64.8, 21.8, 5.3, 'data-program="Milk Boost Mode P1"')}
+    ${figmaHotspot("open-program-detail", "查看 Milk Boost Mode P2 详情", 73, 80.6, 21.8, 5.3, 'data-program="Milk Boost Mode P2"')}`;
 }
 
 function renderRhythmConfirmation() {
-  if (state.currentId !== "mode-list" || (!state.pendingProgramRun && !state.pendingModeSelection)) return "";
+  if (!["control", "pumping-active"].includes(state.currentId) || (!state.pendingProgramRun && !state.pendingModeSelection)) return "";
   const isProgram = Boolean(state.pendingProgramRun);
   const rhythmName = escapeHtml(isProgram ? state.pendingProgramRun : state.pendingModeSelection);
-  const title = isProgram ? "Run this program?" : "Switch rhythm?";
-  const description = isProgram
-    ? "The pump will start immediately with this 45-minute rhythm."
-    : "The current rhythm will switch immediately while keeping your level and frequency settings.";
+  const title = isProgram ? "Switch to Program?" : "Switch to Mode?";
+  const description = "Switching will exit your current running preset and apply the selected mode";
   const confirmAction = isProgram ? "confirm-program-run" : "confirm-mode-switch";
-  const confirmLabel = isProgram ? "Run Program" : "Switch Rhythm";
 
   return `<div class="program-confirm-layer">
     <button type="button" class="program-confirm-scrim" data-action="cancel-rhythm-confirmation" aria-label="Cancel ${rhythmName}"></button>
     <section class="program-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="rhythm-confirm-title" aria-describedby="rhythm-confirm-description">
-      <span class="program-confirm-icon">${icon("audio-waveform")}</span>
       <h2 id="rhythm-confirm-title">${title}</h2>
-      <strong>${rhythmName}</strong>
       <p id="rhythm-confirm-description">${description}</p>
       <div class="program-confirm-actions">
-        <button type="button" data-action="cancel-rhythm-confirmation">Cancel</button>
-        <button type="button" class="primary" data-action="${confirmAction}">${confirmLabel}</button>
+        <button type="button" class="primary" data-action="${confirmAction}">Confirm Switch</button>
+        <button type="button" data-action="cancel-rhythm-confirmation">Not Now</button>
       </div>
     </section>
   </div>`;
@@ -1061,6 +1047,16 @@ function goBack() {
   state.pendingProgramRun = "";
   state.pendingModeSelection = "";
   state.currentId = target;
+  render();
+}
+
+function showRhythmConfirmationOnControl() {
+  const returnId = ["control", "pumping-active"].includes(state.modeListReturnId)
+    ? state.modeListReturnId
+    : "control";
+  if (screenHistory.at(-1) === returnId) screenHistory.pop();
+  state.modeListReturnId = "";
+  state.currentId = returnId;
   render();
 }
 
@@ -1457,12 +1453,12 @@ function handleAction(action, target) {
     case "request-program-run":
       state.pendingProgramRun = target.dataset.program || "Milk Boost Mode P1";
       state.pendingModeSelection = "";
-      render();
+      showRhythmConfirmationOnControl();
       break;
     case "request-mode-switch":
       state.pendingModeSelection = target.dataset.mode || "Stimulation";
       state.pendingProgramRun = "";
-      render();
+      showRhythmConfirmationOnControl();
       break;
     case "cancel-rhythm-confirmation":
       state.pendingProgramRun = "";
@@ -1472,13 +1468,9 @@ function handleAction(action, target) {
     case "confirm-program-run":
       state.activeProgramName = state.pendingProgramRun;
       state.pendingProgramRun = "";
-      state.pumpingSeconds = 0;
-      state.pumpingPaused = false;
-      state.milkLeft = 0;
-      state.milkRight = 0;
-      state.sessionLoggedAutoAdvance = false;
-      goTo("pumping-active");
-      showToast(`${state.activeProgramName} started`);
+      persistState();
+      render();
+      showToast(`${state.activeProgramName} selected`);
       break;
     case "confirm-mode-switch": {
       const selectedMode = state.pendingModeSelection || "Stimulation";
@@ -1486,10 +1478,7 @@ function handleAction(action, target) {
       state.modeName = selectedMode;
       state.activeProgramName = "";
       persistState();
-      const returnId = state.modeListReturnId;
-      state.modeListReturnId = "";
-      if (["control", "pumping-active"].includes(returnId) && screenHistory.at(-1) === returnId) goBack();
-      else goTo("control");
+      render();
       showToast(`${state.modeName} selected`);
       break;
     }

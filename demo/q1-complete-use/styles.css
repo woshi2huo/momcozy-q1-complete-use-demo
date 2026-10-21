@@ -1283,7 +1283,6 @@ button.device-choice:hover {
 .control-base-button-mask,
 .control-ready-patch,
 .control-program-summary,
-.mode-list-selector,
 .program-title-patch,
 .upgrade-cover {
   position: absolute;
@@ -1738,97 +1737,12 @@ button.device-choice:hover {
   width: 10.5%;
 }
 
-.mode-list-selector {
-  top: 199px;
-  left: 16px;
-  display: grid;
-  width: 370px;
-  height: 332px;
-  grid-template-rows: repeat(4, 74px);
-  gap: 12px;
-  background: #f7f5f4;
-}
-
-.mode-list-option {
-  display: grid;
-  min-width: 0;
-  grid-template-columns: 32px minmax(0, 1fr) 28px;
-  align-items: center;
-  padding: 0 17px;
-  border: 2px solid #fff;
-  border-radius: var(--radius-panel);
-  background: #fff;
-  box-shadow: 0 8px 18px rgba(93, 70, 78, 0.035);
-  color: #372f33;
-  cursor: pointer;
-  text-align: left;
-}
-
-.mode-list-option[aria-pressed="true"] {
-  border-color: #991938;
-}
-
-.mode-list-option:focus-visible {
-  outline: 2px solid rgba(152, 41, 69, 0.58);
-  outline-offset: 2px;
-}
-
-.mode-list-option-icon,
-.mode-list-option-selected {
-  display: grid;
-  place-items: center;
-  color: #ed826d;
-}
-
-.mode-list-option-icon svg {
-  width: 20px;
-  height: 20px;
-}
-
-.mode-list-option-copy {
-  min-width: 0;
-}
-
-.mode-list-option-copy strong,
-.mode-list-option-copy small {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.mode-list-option-copy strong {
-  font-size: 16px;
-  font-weight: 650;
-}
-
-.mode-list-option-copy small {
-  margin-top: 3px;
-  color: #999094;
-  font-size: 13px;
-}
-
-.mode-list-option-selected {
-  color: #a32949;
-  opacity: 0;
-}
-
-.mode-list-option-selected svg {
-  width: 22px;
-  height: 22px;
-}
-
-.mode-list-option[aria-pressed="true"] .mode-list-option-selected {
-  opacity: 1;
-}
-
 .program-confirm-layer {
   position: absolute;
   z-index: 30;
   inset: 0;
   display: grid;
-  align-items: end;
-  padding: 18px;
+  place-items: center;
   overflow: hidden;
   border-radius: inherit;
 }
@@ -1837,83 +1751,60 @@ button.device-choice:hover {
   position: absolute;
   inset: 0;
   border: 0;
-  background: rgba(37, 27, 31, 0.48);
+  background: rgba(27, 23, 25, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   cursor: pointer;
 }
 
 .program-confirm-dialog {
   position: relative;
   display: flex;
+  width: 300px;
   flex-direction: column;
-  align-items: center;
-  padding: 24px 20px 18px;
-  border: 1px solid rgba(122, 91, 102, 0.12);
-  border-radius: 24px;
-  background: #fff;
-  box-shadow: 0 24px 60px rgba(49, 35, 40, 0.24);
-  color: #362e32;
-  text-align: center;
-}
-
-.program-confirm-icon {
-  display: grid;
-  width: 48px;
-  height: 48px;
-  place-items: center;
-  margin-bottom: 12px;
-  border-radius: 50%;
-  background: #f8e9ed;
-  color: #a51d40;
-}
-
-.program-confirm-icon svg {
-  width: 24px;
-  height: 24px;
+  padding: 21px 16px 14px;
+  border: 1px solid rgba(126, 111, 117, 0.12);
+  border-radius: 25px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 18px 44px rgba(35, 28, 31, 0.28);
+  color: #262124;
+  text-align: left;
 }
 
 .program-confirm-dialog h2 {
   margin: 0;
-  color: #30282c;
-  font-size: 20px;
-  line-height: 1.25;
-}
-
-.program-confirm-dialog > strong {
-  margin-top: 8px;
-  color: #8e1736;
-  font-size: 16px;
-  font-weight: 700;
+  color: #262124;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 .program-confirm-dialog p {
-  max-width: 290px;
-  margin: 8px 0 20px;
-  color: #8f858a;
-  font-size: 13px;
+  margin: 9px 0 17px;
+  color: #4d474a;
+  font-size: 12px;
   line-height: 1.45;
 }
 
 .program-confirm-actions {
   display: grid;
   width: 100%;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 7px;
 }
 
 .program-confirm-actions button {
-  min-height: 46px;
-  border: 1px solid #e5dcdf;
-  border-radius: 14px;
-  background: #f7f3f4;
-  color: #554a4f;
+  height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: #f1eff0;
+  color: #322c2f;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 650;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .program-confirm-actions button.primary {
-  border-color: #941b3b;
-  background: #941b3b;
+  background: #8f0029;
   color: #fff;
 }
 
