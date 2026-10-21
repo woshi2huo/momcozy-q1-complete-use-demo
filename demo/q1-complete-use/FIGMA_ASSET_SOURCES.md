@@ -1,6 +1,6 @@
 # Q1 Runtime Image Sources
 
-Verified for demo version `0.6.38` on October 21, 2026.
+Verified for demo version `0.6.39` on October 21, 2026.
 
 - Figma file key: `GWaREkdfme4eVzdMQ4AY4v`
 - Q1 page: `462:15542`

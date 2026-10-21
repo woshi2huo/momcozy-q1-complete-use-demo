@@ -1,4 +1,4 @@
-const VERSION = "0.6.38";
+const VERSION = "0.6.39";
 const STORAGE_KEY = `momcozy-q1-complete-use-v${VERSION}`;
 const DEVICE_VIEWPORT = Object.freeze({ width: 402, height: 874 });
 
@@ -1062,6 +1062,25 @@ function goBack() {
   render();
 }
 
+function finishProgramEditing() {
+  const programFlowScreens = new Set([
+    "mode-list",
+    "program-new",
+    "program-detail",
+    "program-section-create",
+    "program-section-rest",
+    "program-detail-section",
+    "program-detail-actions",
+    "program-mode-selection"
+  ]);
+
+  while (programFlowScreens.has(screenHistory.at(-1))) screenHistory.pop();
+  state.pendingProgramRun = "";
+  state.pendingModeSelection = "";
+  state.currentId = "mode-list";
+  render();
+}
+
 function showToast(message) {
   const toast = document.getElementById("toast");
   if (!toast) return;
@@ -1490,7 +1509,7 @@ function handleAction(action, target) {
       break;
     case "save-program-detail":
       persistState();
-      goTo("program-mode-selection");
+      finishProgramEditing();
       showToast("Program updated");
       break;
     case "delete-program":
