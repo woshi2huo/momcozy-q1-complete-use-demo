@@ -1,4 +1,4 @@
-const VERSION = "0.6.39";
+const VERSION = "0.6.40";
 const STORAGE_KEY = `momcozy-q1-complete-use-v${VERSION}`;
 const DEVICE_VIEWPORT = Object.freeze({ width: 402, height: 874 });
 
@@ -662,8 +662,10 @@ function renderControl(screen) {
     <div class="control-light-selector ${state.lightOn ? "" : "disabled"}" aria-label="灯光模式选择">${lightModeButtons}</div>
     <span class="control-section-value control-light-value">${state.lightMode}</span>
     ${hotspot("back", "返回子首页", 0, 3.6, 13, 7)}
-    ${hotspot("show-help", "帮助", 77.8, 3.6, 10.5, 7)}
-    ${hotspot("open-settings", "打开设置", 88.2, 3.6, 11.8, 7)}
+    <div class="control-header-actions" aria-label="设备帮助与设置">
+      <button type="button" data-action="show-help" aria-label="帮助">${icon("circle-help")}</button>
+      <button type="button" data-action="open-settings" aria-label="打开设置">${icon("settings")}</button>
+    </div>
     ${hotspot("open-mode-list", "打开韵律列表", 72, 29.5, 25.5, 6.5)}`;
 }
 
