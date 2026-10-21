@@ -1,4 +1,4 @@
-const VERSION = "0.6.42";
+const VERSION = "0.6.43";
 const STORAGE_KEY = `momcozy-q1-complete-use-v${VERSION}`;
 const DEVICE_VIEWPORT = Object.freeze({ width: 402, height: 874 });
 const QUICK_DELAY = Object.freeze({
@@ -774,43 +774,38 @@ function renderProgramDetail(screen) {
 
 function renderProgramSectionEditor(screen, restMode = false) {
   const modeButtons = [
-    ["Massage", 8, 18.4, 41, 4.7],
-    ["Breastfeeding", 50, 18.4, 41, 4.7],
-    ["Mixing", 8, 23.4, 41, 4.7],
-    ["Lactation", 50, 23.4, 41, 4.7],
-    ["Rest", 8, 28.4, 41, 4.7]
-  ].map(([mode, left, top, width, height]) => figmaHotspot("set-section-mode", `选择 ${mode}`, left, top, width, height, `data-mode="${mode}"`)).join("");
+    ["Massage", "massage", 8, 18.4],
+    ["Breastfeeding", "breastfeeding", 50, 18.4],
+    ["Mixing", "mixing", 8, 23.4],
+    ["Lactation", "lactation", 50, 23.4],
+    ["Rest", "rest", 8, 28.4]
+  ].map(([mode, color, left, top]) => `<button type="button" class="program-editor-mode-button ${color}" style="left:${left}%;top:${top}%" data-action="set-section-mode" data-mode="${mode}" aria-pressed="${state.sectionDraft.mode === mode}"><span></span>${mode}</button>`).join("");
   const durationTop = restMode ? 39.2 : 61.3;
-  const levelPatch = !restMode && state.sectionDraft.level !== 1
-    ? `<span class="program-editor-level-value">${state.sectionDraft.level}<small>/ 12</small></span>`
-    : "";
-  const frequencyPatch = !restMode && state.sectionDraft.frequency !== 5
-    ? `<span class="program-editor-frequency-state" data-value="${state.sectionDraft.frequency}" style="--frequency-index:${state.sectionDraft.frequency - 1}"></span>`
-    : "";
-  const durationIndex = [5, 10, 15, 20].indexOf(state.sectionDraft.duration);
-  const durationLeft = durationIndex === 1 ? 37 : durationIndex === 2 ? 66 : 8;
-  const durationSelectedTop = durationIndex === 3 ? durationTop + 5.5 : durationTop;
-  const durationLabel = durationIndex === 3 ? "Custom" : `${state.sectionDraft.duration}mins`;
-  const durationPatch = durationIndex > 0
-    ? `<span class="program-editor-duration-reset" style="top:${durationTop}%">5mins</span><span class="program-editor-duration-state" style="left:${durationLeft}%;top:${durationSelectedTop}%">${durationLabel}</span>`
-    : "";
-  const modePatch = (!restMode && state.sectionDraft.mode !== "Massage")
-    ? `${PROGRAM_SECTION_MODES.slice(0, 4).map((mode, index) => `<span class="program-editor-mode-option" style="left:${index % 2 === 0 ? 8 : 50}%;top:${index < 2 ? 18.4 : 23.4}%">${mode}</span>`).join("")}<span class="program-editor-mode-state" style="left:${state.sectionDraft.mode === "Breastfeeding" || state.sectionDraft.mode === "Lactation" ? 50 : 8}%;top:${state.sectionDraft.mode === "Breastfeeding" ? 18.4 : 23.4}%">${escapeHtml(state.sectionDraft.mode)}</span>`
-    : "";
+  const frequencyButtons = Array.from({ length: 5 }, (_, index) => `<button type="button" data-action="set-section-frequency" data-value="${index + 1}" aria-pressed="${state.sectionDraft.frequency === index + 1}">${index + 1}</button>`).join("");
+  const durationButtons = [
+    [5, "5mins", 8, durationTop],
+    [10, "10mins", 37, durationTop],
+    [15, "15mins", 66, durationTop],
+    [20, "Custom", 8, durationTop + 5.5]
+  ].map(([value, label, left, top]) => `<button type="button" class="program-editor-duration-button" style="left:${left}%;top:${top}%" data-action="set-section-duration" data-value="${value}" aria-pressed="${state.sectionDraft.duration === value}">${label}</button>`).join("");
 
   return `${baseImage(screen)}
-    ${modePatch}${levelPatch}${frequencyPatch}${durationPatch}
-    ${figmaHotspot("back", "返回韵律详情", 0, 3.2, 16, 6.5)}
+    <div class="program-editor-card program-editor-mode-card" aria-hidden="true"></div>
+    ${restMode ? "" : `<section class="program-editor-card program-editor-level-card" aria-hidden="true"><strong>Level</strong><span>${state.sectionDraft.level}</span></section>
+    <section class="program-editor-card program-editor-frequency-card" aria-hidden="true"><strong>Frequency</strong><span>${state.sectionDraft.frequency}</span></section>`}
+    <section class="program-editor-card program-editor-duration-card ${restMode ? "rest" : ""}" aria-hidden="true"><strong>Usage time</strong></section>
+    ${restMode ? "" : '<div class="program-editor-try-cover" aria-hidden="true"></div>'}
+    <button type="button" class="program-editor-back" data-action="back" aria-label="返回韵律详情">${icon("chevron-left")}</button>
     ${modeButtons}
-    ${restMode ? "" : `${figmaHotspot("section-level-down", "降低档位", 8, 39.6, 22, 4.9)}
-      ${figmaHotspot("section-level-up", "提高档位", 70, 39.6, 22, 4.9)}
-      ${Array.from({ length: 5 }, (_, index) => figmaHotspot("set-section-frequency", `频率 ${index + 1}`, 8 + index * 16.8, 51.1, 16.8, 4.6, `data-value="${index + 1}"`)).join("")}`}
-    ${figmaHotspot("set-section-duration", "5 分钟", 8, durationTop, 26, 4.8, 'data-value="5"')}
-    ${figmaHotspot("set-section-duration", "10 分钟", 37, durationTop, 26, 4.8, 'data-value="10"')}
-    ${figmaHotspot("set-section-duration", "15 分钟", 66, durationTop, 26, 4.8, 'data-value="15"')}
-    ${figmaHotspot("set-section-duration", "自定义时长", 8, durationTop + 5.5, 26, 4.8, 'data-value="20"')}
-    ${restMode ? "" : figmaHotspot("try-program-section", "试听当前韵律", 39, 75, 22, 8)}
-    ${figmaHotspot("confirm-add-section", "保存该分段", 1, 89.6, 98, 6.5)}`;
+    ${restMode ? "" : `<div class="program-editor-level-control">
+      <button type="button" data-action="section-level-down" aria-label="降低档位">${icon("minus")}</button>
+      <span><strong>${state.sectionDraft.level}</strong><small>/ 12</small></span>
+      <button type="button" data-action="section-level-up" aria-label="提高档位">${icon("plus")}</button>
+    </div>
+    <div class="program-editor-frequency-control" aria-label="频率选择">${frequencyButtons}</div>`}
+    ${durationButtons}
+    ${restMode ? "" : `<button type="button" class="program-editor-try" data-action="try-program-section" aria-label="试听当前韵律">${icon("play")}<span>Try-out</span></button>`}
+    <button type="button" class="program-editor-next" data-action="confirm-add-section">Next</button>`;
 }
 
 function renderProgramDetailSection(screen, actionsOpen = false) {
