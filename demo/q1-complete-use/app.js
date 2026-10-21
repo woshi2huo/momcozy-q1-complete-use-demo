@@ -1,6 +1,13 @@
-const VERSION = "0.6.41";
+const VERSION = "0.6.42";
 const STORAGE_KEY = `momcozy-q1-complete-use-v${VERSION}`;
 const DEVICE_VIEWPORT = Object.freeze({ width: 402, height: 874 });
+const QUICK_DELAY = Object.freeze({
+  autoDiscovery: 400,
+  autoConnect: 350,
+  manualScan: 500,
+  sessionLogged: 800,
+  toast: 900
+});
 
 // Source dimensions are retained for reference; every screen renders in DEVICE_VIEWPORT.
 const screenGroups = [
@@ -647,6 +654,12 @@ function renderControl(screen) {
 
   return `${baseImage(screen)}
     <div class="control-base-button-mask" aria-hidden="true"></div>
+    <div class="control-device-status" aria-label="蓝牙已连接，设备电量 60%">
+      ${icon("bluetooth")}
+      <span class="control-device-status-divider" aria-hidden="true"></span>
+      ${icon("battery-medium")}
+      <span>60%</span>
+    </div>
     ${screen.id === "control" ? `<div class="control-ready-patch">${icon("circle-check")}<strong>Ready to Pump</strong></div>` : ""}
     ${programIsActive ? `<div class="control-program-summary" aria-label="Active program ${escapeHtml(activeProgramName)}"><span><strong>${escapeHtml(activeProgramName)}</strong><small>${screen.id === "pumping-active" ? "Sequential program is running." : "Program selected and ready to start."}</small></span><span class="control-program-switch">Switch ${icon("chevron-right")}</span></div>` : ""}
     <div class="control-mode-selector">${modeButtons}</div>
@@ -1085,7 +1098,7 @@ function showToast(message) {
   toast.textContent = message;
   toast.classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove("show"), 1800);
+  toastTimer = setTimeout(() => toast.classList.remove("show"), QUICK_DELAY.toast);
 }
 
 function resetDemo() {
@@ -1172,7 +1185,7 @@ function schedulePairingFlow(screenId) {
       pairingTimer = null;
       state.autoDiscoveryQueued = false;
       if (state.currentId === "pairing-home") goTo("auto-discovery", false);
-    }, 1200);
+    }, QUICK_DELAY.autoDiscovery);
   }
 
   if (screenId === "auto-connecting") {
@@ -1182,14 +1195,14 @@ function schedulePairingFlow(screenId) {
       state.bound = true;
       persistState();
       goTo("auto-complete", false);
-    }, 800);
+    }, QUICK_DELAY.autoConnect);
   }
 
   if (screenId === "manual-scan") {
     pairingTimer = setTimeout(() => {
       pairingTimer = null;
       if (state.currentId === "manual-scan") goTo("manual-confirm", false);
-    }, 1800);
+    }, QUICK_DELAY.manualScan);
   }
 
   if (screenId === "manual-progress") startPairingProgress();
@@ -1261,7 +1274,7 @@ function scheduleSessionLoggedTransition() {
     screenHistory.length = 0;
     state.currentId = "home";
     render();
-  }, 2400);
+  }, QUICK_DELAY.sessionLogged);
 }
 
 function updateProgramDraftUi() {

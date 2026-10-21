@@ -1,6 +1,6 @@
 # Q1 Runtime Image Sources
 
-Verified for demo version `0.6.41` on October 21, 2026.
+Verified for demo version `0.6.42` on October 21, 2026.
 
 - Figma file key: `GWaREkdfme4eVzdMQ4AY4v`
 - Q1 page: `462:15542`
@@ -32,7 +32,7 @@ Verified for demo version `0.6.41` on October 21, 2026.
 | `plan-loading.png` | `1094:22886` | Plan generation progress and pumping tips |
 | `plan-schedule.png` | `1094:22947` | Generated plan schedule confirmation |
 | `pumping-logged.png` | `1094:22592` | Q1 V1.2 complete Logged page |
-| `device-control.png` | `1094:40899` | Q1 V1.2 device control |
+| `device-control.png` | `1094:40899` | Q1 V1.2 device control base; runtime overlay removes Wi-Fi, retains Bluetooth/battery, and adds Help/Settings on every control state |
 | `rhythm-list.png` | `1094:20527` | Q1 V1.2 rhythm list, including overflow content |
 | `new-program.png` | `1094:27117` | Q1 V1.2 create Program |
 | `program-detail.png` | `1094:27144` | Q1 V1.2 Program detail |

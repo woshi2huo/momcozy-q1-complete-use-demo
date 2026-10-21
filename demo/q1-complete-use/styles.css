@@ -1279,6 +1279,7 @@ button.device-choice:hover {
 .control-light-toggle,
 .control-light-selector,
 .control-section-value,
+.control-device-status,
 .control-header-actions,
 .control-base-button-mask,
 .control-ready-patch,
@@ -1287,6 +1288,43 @@ button.device-choice:hover {
 .upgrade-cover {
   position: absolute;
   z-index: 4;
+}
+
+button,
+[data-action] {
+  touch-action: manipulation;
+}
+
+.control-device-status {
+  top: 8.2%;
+  left: 31%;
+  display: flex;
+  width: 38%;
+  height: 4.2%;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #fff8f8;
+  color: #777175;
+  font-size: 14px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.control-device-status svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 1.7;
+}
+
+.control-device-status svg:nth-of-type(2) {
+  width: 24px;
+}
+
+.control-device-status-divider {
+  width: 1px;
+  height: 17px;
+  background: #aaa3a6;
 }
 
 .control-header-actions {
@@ -1320,6 +1358,7 @@ button.device-choice:hover {
 
 .control-header-actions button:active {
   background: rgba(211, 116, 139, 0.14);
+  transform: scale(0.96);
 }
 
 .control-header-actions button:focus-visible {
@@ -1507,7 +1546,7 @@ button.device-choice:hover {
   border-radius: 12px;
   background: #fbf0f2;
   color: #d58b9b;
-  transition: background 150ms ease, box-shadow 150ms ease, color 150ms ease, transform 150ms ease;
+  transition: background 70ms ease, box-shadow 70ms ease, color 70ms ease, transform 70ms ease;
 }
 
 .control-mode-icon svg {
@@ -1633,7 +1672,7 @@ button.device-choice:hover {
   cursor: pointer;
   font-size: 12px;
   font-weight: 560;
-  transition: background 150ms ease, box-shadow 150ms ease, color 150ms ease, transform 150ms ease;
+  transition: background 70ms ease, box-shadow 70ms ease, color 70ms ease, transform 70ms ease;
 }
 
 .control-frequency-selector button:hover,
@@ -1661,7 +1700,7 @@ button.device-choice:hover {
   border-radius: 999px;
   background: #cbc5c8;
   cursor: pointer;
-  transition: background 150ms ease;
+  transition: background 70ms ease;
 }
 
 .control-light-toggle span {
@@ -1671,7 +1710,7 @@ button.device-choice:hover {
   border-radius: 50%;
   background: #fff;
   box-shadow: 0 1px 3px rgba(42, 31, 36, 0.22);
-  transition: transform 160ms ease;
+  transition: transform 70ms ease;
 }
 
 .control-light-toggle.on {
@@ -1688,7 +1727,7 @@ button.device-choice:hover {
   width: 83.6%;
   height: 4.8%;
   grid-template-columns: repeat(3, 1fr);
-  transition: opacity 150ms ease;
+  transition: opacity 70ms ease;
 }
 
 .control-light-selector.disabled {
@@ -4333,7 +4372,7 @@ button.device-choice:hover {
   opacity: 0;
   pointer-events: none;
   transform: translateY(10px);
-  transition: opacity 160ms ease, transform 160ms ease;
+  transition: opacity 80ms ease, transform 80ms ease;
 }
 
 .toast.show {
