@@ -1,4 +1,4 @@
-const VERSION = "0.6.37";
+const VERSION = "0.6.38";
 const STORAGE_KEY = `momcozy-q1-complete-use-v${VERSION}`;
 const DEVICE_VIEWPORT = Object.freeze({ width: 402, height: 874 });
 
@@ -749,13 +749,15 @@ function renderRhythmConfirmation() {
 function renderProgramNew(screen) {
   const draft = escapeHtml(state.programDraft);
   const description = escapeHtml(state.descriptionDraft);
-  const disabled = state.programDraft.trim().length === 0;
+  const nameLength = state.programDraft.trim().length;
+  const showError = nameLength === 0 || nameLength > 32;
+  const disabled = showError;
 
   return `${baseImage(screen)}
-    ${hotspot("back", "取消新增 Program", 0, 0, 24, 10)}
-    <input class="new-program-field new-program-name" data-program-name maxlength="32" value="${draft}" placeholder="Please enter the mode name" aria-label="Program name" autocomplete="off" />
+    ${hotspot("back", "取消新增 Program", 0, 20.6, 24, 7.5)}
+    <input class="new-program-field new-program-name" data-program-name maxlength="64" value="${draft}" placeholder="Please enter the mode name" aria-label="Program name" autocomplete="off" />
     <textarea class="new-program-field new-program-description" data-program-description maxlength="80" placeholder="Default description copy" aria-label="Program description">${description}</textarea>
-    <span class="new-program-error" data-program-error></span>
+    <span class="new-program-error${showError ? " is-visible" : ""}" data-program-error aria-live="polite">${showError ? "Input too long. Max 32 characters." : ""}</span>
     <button type="button" class="visible-save" data-action="save-program" ${disabled ? "disabled" : ""}>Save</button>`;
 }
 
@@ -1248,8 +1250,13 @@ function scheduleSessionLoggedTransition() {
 function updateProgramDraftUi() {
   const saveButton = document.querySelector(".visible-save");
   const error = document.querySelector("[data-program-error]");
-  if (saveButton) saveButton.disabled = state.programDraft.trim().length === 0;
-  if (error) error.textContent = state.programDraft.length >= 32 ? "Max 32 characters." : "";
+  const nameLength = state.programDraft.trim().length;
+  const showError = nameLength === 0 || nameLength > 32;
+  if (saveButton) saveButton.disabled = showError;
+  if (error) {
+    error.classList.toggle("is-visible", showError);
+    error.textContent = showError ? "Input too long. Max 32 characters." : "";
+  }
 }
 
 function handleAction(action, target) {

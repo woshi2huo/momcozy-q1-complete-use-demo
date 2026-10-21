@@ -1889,8 +1889,8 @@ button.device-choice:hover {
 }
 
 .new-program-name {
-  top: 9.2%;
-  height: 6.25%;
+  top: 29.85%;
+  height: 6.4%;
   padding: 0 16px;
   border: 1px solid #ff5f59;
   border-radius: 14px;
@@ -1898,9 +1898,9 @@ button.device-choice:hover {
 }
 
 .new-program-description {
-  top: 21%;
-  height: 6.25%;
-  padding: 14px 16px;
+  top: 41.7%;
+  height: 6.4%;
+  padding: 15px 16px;
   border-radius: 14px;
   background: #f7f7f7;
   resize: none;
@@ -1914,20 +1914,26 @@ button.device-choice:hover {
 .new-program-error {
   position: absolute;
   z-index: 5;
-  top: 15.65%;
+  top: 36.25%;
   left: 4.2%;
   width: 91.5%;
-  height: 4.9%;
-  padding-top: 7px;
+  height: 5.45%;
+  padding-top: 13px;
   background: #fff;
   color: #ff3e3e;
   font-size: 13px;
+  line-height: 1.25;
+  pointer-events: none;
+}
+
+.new-program-error:not(.is-visible) {
+  color: transparent;
 }
 
 .visible-save {
   position: absolute;
   z-index: 7;
-  top: 0;
+  top: 20.6%;
   right: 0;
   width: 22%;
   height: 7.5%;
@@ -1939,7 +1945,8 @@ button.device-choice:hover {
 }
 
 .visible-save:disabled {
-  color: #e8cbd2;
+  background: transparent;
+  color: transparent;
   cursor: default;
 }
 
