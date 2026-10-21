@@ -1,4 +1,4 @@
-const VERSION = "0.6.43";
+const VERSION = "0.6.44";
 const STORAGE_KEY = `momcozy-q1-complete-use-v${VERSION}`;
 const DEVICE_VIEWPORT = Object.freeze({ width: 402, height: 874 });
 const QUICK_DELAY = Object.freeze({
@@ -808,6 +808,12 @@ function renderProgramSectionEditor(screen, restMode = false) {
     <button type="button" class="program-editor-next" data-action="confirm-add-section">Next</button>`;
 }
 
+function updateProgramEditorModeUi() {
+  document.querySelectorAll(".program-editor-mode-button").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.mode === state.sectionDraft.mode));
+  });
+}
+
 function renderProgramDetailSection(screen, actionsOpen = false) {
   return `${baseImage(screen)}
     ${figmaHotspot("back", "返回上一步", 0, 4.8, 17, 8)}
@@ -1530,7 +1536,10 @@ function handleAction(action, target) {
       state.sectionDraft.mode = PROGRAM_SECTION_MODES.includes(target.dataset.mode) ? target.dataset.mode : "Massage";
       if (state.sectionDraft.mode === "Rest" && state.currentId !== "program-section-rest") goTo("program-section-rest", false);
       else if (state.sectionDraft.mode !== "Rest" && state.currentId === "program-section-rest") goTo("program-section-create", false);
-      else showToast(`${state.sectionDraft.mode} selected`);
+      else {
+        updateProgramEditorModeUi();
+        showToast(`${state.sectionDraft.mode} selected`);
+      }
       break;
     case "section-level-down":
       state.sectionDraft.level = clamp(state.sectionDraft.level - 1, 1, 12);

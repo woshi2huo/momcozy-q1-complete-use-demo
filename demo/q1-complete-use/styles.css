@@ -639,6 +639,21 @@ button {
   border: 0;
   cursor: pointer;
   touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.program-editor-mode-button *,
+.program-editor-duration-button *,
+.program-editor-level-control button *,
+.program-editor-frequency-control button *,
+.program-editor-back *,
+.program-editor-try *,
+.program-editor-next * {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .program-editor-mode-button {
