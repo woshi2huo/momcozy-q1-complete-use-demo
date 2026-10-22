@@ -1,4 +1,4 @@
-const VERSION = "0.6.44";
+const VERSION = "0.6.45";
 const STORAGE_KEY = `momcozy-q1-complete-use-v${VERSION}`;
 const DEVICE_VIEWPORT = Object.freeze({ width: 402, height: 874 });
 const QUICK_DELAY = Object.freeze({
@@ -81,6 +81,7 @@ const screenGroups = [
     icon: "settings-2",
     screens: [
       { id: "settings", label: "设置页", caption: "Q1 设备设置", image: "settings.png", width: 402, height: 874 },
+      { id: "smart-care-setting", label: "Smart Care Setting", caption: "Q1 设备信息", width: 402, height: 874 },
       { id: "firmware-alert", label: "固件升级确认", caption: "升级前确认", image: "firmware-alert.png", width: 402, height: 874 },
       { id: "firmware-upgrade", label: "MCU 升级过程", caption: "固件升级进度", image: "firmware-upgrade.png", width: 375, height: 812 }
     ]
@@ -128,6 +129,7 @@ const fallbackBackTargets = {
   "program-detail-actions": "program-detail-section",
   "program-mode-selection": "program-detail-section",
   settings: "control",
+  "smart-care-setting": "settings",
   "firmware-alert": "settings",
   "firmware-upgrade": "settings"
 };
@@ -780,7 +782,7 @@ function renderProgramSectionEditor(screen, restMode = false) {
     ["Lactation", "lactation", 50, 23.4],
     ["Rest", "rest", 8, 28.4]
   ].map(([mode, color, left, top]) => `<button type="button" class="program-editor-mode-button ${color}" style="left:${left}%;top:${top}%" data-action="set-section-mode" data-mode="${mode}" aria-pressed="${state.sectionDraft.mode === mode}"><span></span>${mode}</button>`).join("");
-  const durationTop = restMode ? 39.2 : 61.3;
+  const durationTop = restMode ? 41.5 : 63.7;
   const frequencyButtons = Array.from({ length: 5 }, (_, index) => `<button type="button" data-action="set-section-frequency" data-value="${index + 1}" aria-pressed="${state.sectionDraft.frequency === index + 1}">${index + 1}</button>`).join("");
   const durationButtons = [
     [5, "5mins", 8, durationTop],
@@ -790,14 +792,15 @@ function renderProgramSectionEditor(screen, restMode = false) {
   ].map(([value, label, left, top]) => `<button type="button" class="program-editor-duration-button" style="left:${left}%;top:${top}%" data-action="set-section-duration" data-value="${value}" aria-pressed="${state.sectionDraft.duration === value}">${label}</button>`).join("");
 
   return `${baseImage(screen)}
-    <div class="program-editor-card program-editor-mode-card" aria-hidden="true"></div>
-    ${restMode ? "" : `<section class="program-editor-card program-editor-level-card" aria-hidden="true"><strong>Level</strong><span>${state.sectionDraft.level}</span></section>
-    <section class="program-editor-card program-editor-frequency-card" aria-hidden="true"><strong>Frequency</strong><span>${state.sectionDraft.frequency}</span></section>`}
-    <section class="program-editor-card program-editor-duration-card ${restMode ? "rest" : ""}" aria-hidden="true"><strong>Usage time</strong></section>
-    ${restMode ? "" : '<div class="program-editor-try-cover" aria-hidden="true"></div>'}
+    <div class="program-editor-control-mask program-editor-mode-mask" aria-hidden="true"></div>
+    ${restMode ? "" : `<div class="program-editor-control-mask program-editor-level-mask" aria-hidden="true"></div>
+    <div class="program-editor-control-mask program-editor-frequency-mask" aria-hidden="true"></div>`}
+    <div class="program-editor-control-mask program-editor-duration-mask ${restMode ? "rest" : ""}" aria-hidden="true"></div>
     <button type="button" class="program-editor-back" data-action="back" aria-label="返回韵律详情">${icon("chevron-left")}</button>
     ${modeButtons}
-    ${restMode ? "" : `<div class="program-editor-level-control">
+    ${restMode ? "" : `<span class="program-editor-level-value" aria-hidden="true">${state.sectionDraft.level}</span>
+    <span class="program-editor-frequency-state" aria-hidden="true">${state.sectionDraft.frequency}</span>
+    <div class="program-editor-level-control">
       <button type="button" data-action="section-level-down" aria-label="降低档位">${icon("minus")}</button>
       <span><strong>${state.sectionDraft.level}</strong><small>/ 12</small></span>
       <button type="button" data-action="section-level-up" aria-label="提高档位">${icon("plus")}</button>
@@ -839,9 +842,33 @@ function renderProgramModeSelection(screen) {
 function renderSettings(screen) {
   return `${baseImage(screen)}
     ${hotspot("back", "返回设备控制", 0, 6, 18, 9)}
+    ${hotspot("open-device-details", "查看 Q1 设备信息", 4, 15.6, 92, 8.8)}
     ${hotspot("open-firmware", "Firmware Upgrade", 4, 30.6, 92, 7.2)}
     ${hotspot("restore-factory", "Restore Factory", 4, 37.4, 92, 7)}
     ${hotspot("delete-device", "Delete device", 4, 44.5, 92, 8)}`;
+}
+
+function renderSmartCareSetting() {
+  const serialNumber = "SN- DAC1101FDF49";
+  return `<section class="smart-care-setting-screen">
+    <div class="smart-care-statusbar" aria-hidden="true"><strong>7:41</strong><span>${icon("signal")}${icon("wifi")}<i></i></span></div>
+    <header class="smart-care-header">
+      <button type="button" data-action="back" aria-label="返回设置">${icon("chevron-left")}</button>
+      <strong>Setting</strong>
+      <span></span>
+    </header>
+    <div class="smart-care-device">
+      <img src="./assets/q1-device.png?v=${VERSION}" alt="Momcozy Q1" draggable="false" />
+      <strong>Q1 ${icon("scan-line")}</strong>
+    </div>
+    <dl class="smart-care-info">
+      <div><dt>Model</dt><dd>Q1</dd></div>
+      <div><dt>SN</dt><dd>${serialNumber}<button type="button" data-action="copy-device-id" data-copy-value="${serialNumber}" aria-label="复制序列号">${icon("copy")}</button></dd></div>
+      <div><dt>MAC</dt><dd>${serialNumber}<button type="button" data-action="copy-device-id" data-copy-value="${serialNumber}" aria-label="复制 MAC 地址">${icon("copy")}</button></dd></div>
+      <div><dt>Firmware Version</dt><dd>46</dd></div>
+    </dl>
+    <span class="smart-care-home-indicator" aria-hidden="true"></span>
+  </section>`;
 }
 
 function renderFirmwareAlert(screen) {
@@ -901,6 +928,7 @@ function renderScreen(screen) {
     case "program-detail-actions": return renderProgramDetailSection(screen, true);
     case "program-mode-selection": return renderProgramModeSelection(screen);
     case "settings": return renderSettings(screen);
+    case "smart-care-setting": return renderSmartCareSetting();
     case "firmware-alert": return renderFirmwareAlert(screen);
     case "firmware-upgrade": return renderFirmwareUpgrade(screen);
     default: return baseImage(screen);
@@ -1673,8 +1701,13 @@ function handleAction(action, target) {
       render();
       showToast("Pumping session completed");
       break;
-    case "show-help": showToast("Q1 device assistant"); break;
+    case "show-help": goTo("training-welcome"); break;
     case "open-settings": goTo("settings"); break;
+    case "open-device-details": goTo("smart-care-setting"); break;
+    case "copy-device-id":
+      navigator.clipboard?.writeText(target.dataset.copyValue || "");
+      showToast("Copied");
+      break;
     case "open-firmware": goTo("firmware-alert"); break;
     case "cancel-firmware": goBack(); break;
     case "confirm-firmware":
