@@ -452,12 +452,22 @@ button {
   scrollbar-width: none;
 }
 
-[data-current-screen="control"] .phone-scroll {
-  padding-bottom: 126px;
+[data-current-screen="control"] .phone-scroll,
+[data-current-screen="control-program"] .phone-scroll {
+  bottom: 126px;
 }
 
 [data-current-screen="pumping-active"] .phone-scroll {
-  padding-bottom: 110px;
+  bottom: 110px;
+}
+
+.control-scroll-content {
+  height: 894px;
+  overflow: hidden;
+}
+
+.control-scroll-content:has(.control-program-summary) {
+  height: 854px;
 }
 
 [data-current-screen="control"] .phone-scroll::-webkit-scrollbar,
@@ -4880,28 +4890,6 @@ button,
   font-size: 12px;
 }
 
-.toast {
-  position: fixed;
-  z-index: 50;
-  right: 28px;
-  bottom: 24px;
-  max-width: min(360px, calc(100vw - 32px));
-  padding: 11px 14px;
-  border-radius: 12px;
-  background: rgba(43, 36, 39, 0.94);
-  color: #fff;
-  font-size: 13px;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(10px);
-  transition: opacity 80ms ease, transform 80ms ease;
-}
-
-.toast.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 @media (max-width: 1120px) {
   .app-shell {
     grid-template-columns: 246px minmax(400px, 1fr);
@@ -4956,11 +4944,6 @@ button,
     grid-row: 2;
   }
 
-  .toast {
-    right: 16px;
-    bottom: 16px;
-    left: 16px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

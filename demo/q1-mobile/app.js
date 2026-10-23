@@ -1,13 +1,12 @@
 const VERSION = "0.6.46";
-const ASSET_REVISION = "13";
+const ASSET_REVISION = "15";
 const STORAGE_KEY = `momcozy-q1-mobile-v${VERSION}`;
 const DEVICE_VIEWPORT = Object.freeze({ width: 402, height: 874 });
 const QUICK_DELAY = Object.freeze({
   autoDiscovery: 400,
   autoConnect: 350,
   manualScan: 500,
-  sessionLogged: 800,
-  toast: 900
+  sessionLogged: 800
 });
 
 // Source dimensions are retained for reference; every screen renders in DEVICE_VIEWPORT.
@@ -204,7 +203,6 @@ const state = {
 };
 
 const screenHistory = [];
-let toastTimer = null;
 let upgradeTimer = null;
 let pairingTimer = null;
 let pairingProgressTimer = null;
@@ -699,9 +697,7 @@ function renderControl(screen) {
       <span><strong>${state.level}</strong><small>/ 12</small></span>
       <button type="button" data-action="level-up" aria-label="提高吸力档位">${icon("plus")}</button>
     </div>
-    <span class="control-section-value control-level-value">${state.level}</span>
     <div class="control-frequency-selector" aria-label="频率选择">${frequencyButtons}</div>
-    <span class="control-section-value control-frequency-value">${state.frequency}</span>
     <button type="button" class="control-light-toggle ${state.lightOn ? "on" : ""}" data-action="toggle-light" aria-pressed="${state.lightOn}" aria-label="切换灯光"><span></span></button>
     <div class="control-light-selector ${state.lightOn ? "" : "disabled"}" aria-label="灯光模式选择">${lightModeButtons}</div>
     <span class="control-section-value control-light-value">${state.lightMode}</span>
@@ -751,7 +747,8 @@ function renderPumpingSessionLogged(screen) {
 }
 
 function renderModeList(screen) {
-  return `${baseImage(screen)}
+  return `<div class="mode-list-backdrop" aria-hidden="true">${baseImage(screen)}</div>
+    <div class="mode-list-sheet">${baseImage(screen)}
     ${figmaHotspot("back", "关闭韵律列表", 2.8, 14.8, 14, 6.2)}
     ${figmaHotspot("request-mode-switch", "切换到 Stimulation", 3.8, 26.6, 92.4, 7.1, 'data-mode="Stimulation"')}
     ${figmaHotspot("request-mode-switch", "切换到 Expression", 3.8, 34.7, 92.4, 7.1, 'data-mode="Expression"')}
@@ -761,7 +758,7 @@ function renderModeList(screen) {
     ${figmaHotspot("request-program-run", "切换到 Milk Boost Mode P1", 5.2, 64.5, 89.6, 14.7, 'data-program="Milk Boost Mode P1"')}
     ${figmaHotspot("request-program-run", "切换到 Milk Boost Mode P2", 5.2, 80.3, 89.6, 14.7, 'data-program="Milk Boost Mode P2"')}
     ${figmaHotspot("open-program-detail", "查看 Milk Boost Mode P1 详情", 73, 64.8, 21.8, 5.3, 'data-program="Milk Boost Mode P1"')}
-    ${figmaHotspot("open-program-detail", "查看 Milk Boost Mode P2 详情", 73, 80.6, 21.8, 5.3, 'data-program="Milk Boost Mode P2"')}`;
+    ${figmaHotspot("open-program-detail", "查看 Milk Boost Mode P2 详情", 73, 80.6, 21.8, 5.3, 'data-program="Milk Boost Mode P2"')}</div>`;
 }
 
 function renderRhythmConfirmation() {
@@ -858,14 +855,10 @@ function updateControlUi() {
     button.setAttribute("aria-pressed", String(!state.activeProgramName && button.dataset.mode === state.modeName));
   });
   const level = document.querySelector(".control-level-stepper strong");
-  const levelValue = document.querySelector(".control-level-value");
   if (level) level.textContent = state.level;
-  if (levelValue) levelValue.textContent = state.level;
   document.querySelectorAll(".control-frequency-selector button").forEach((button) => {
     button.setAttribute("aria-pressed", String(Number(button.dataset.value) === state.frequency));
   });
-  const frequencyValue = document.querySelector(".control-frequency-value");
-  if (frequencyValue) frequencyValue.textContent = state.frequency;
   const lightToggle = document.querySelector(".control-light-toggle");
   if (lightToggle) {
     lightToggle.classList.toggle("on", state.lightOn);
@@ -1085,6 +1078,7 @@ function renderReviewPanel(screen) {
 }
 
 function render() {
+  const motionSnapshot = window.demoMotion?.capture(state.currentId);
   const previousStage = document.querySelector(".stage");
   const previousScroll = document.getElementById("phone-scroll");
   if (previousStage?.dataset.currentScreen && previousScroll) {
@@ -1120,9 +1114,11 @@ function render() {
       <div class="phone-slot" id="phone-slot">
         <section class="phone-frame" id="phone-frame" style="width:${DEVICE_VIEWPORT.width}px;height:${DEVICE_VIEWPORT.height}px" aria-label="${screen.label}">
           <div class="phone-scroll" id="phone-scroll">
+            ${["control", "control-program", "pumping-active"].includes(screen.id) ? '<div class="control-scroll-content">' : ""}
             <div class="phone-canvas" style="width:${DEVICE_VIEWPORT.width}px;height:${canvasHeight}px">
               ${renderScreen(screen)}
             </div>
+            ${["control", "control-program", "pumping-active"].includes(screen.id) ? '</div>' : ""}
           </div>
           ${renderRhythmConfirmation()}
           ${controlStickyFooter}
@@ -1138,6 +1134,7 @@ function render() {
     fitFrame();
     const phoneScroll = document.getElementById("phone-scroll");
     if (phoneScroll) phoneScroll.scrollTop = screenScrollPositions.get(screen.id) || 0;
+    window.demoMotion?.play(motionSnapshot);
     document.querySelector(".program-confirm-actions .primary")?.focus();
   });
   if (screen.id === "firmware-upgrade") startUpgrade();
@@ -1214,14 +1211,7 @@ function finishProgramEditing() {
   render();
 }
 
-function showToast(message) {
-  const toast = document.getElementById("toast");
-  if (!toast) return;
-  toast.textContent = message;
-  toast.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove("show"), QUICK_DELAY.toast);
-}
+function showToast() {}
 
 function resetDemo() {
   if (upgradeTimer) clearInterval(upgradeTimer);
@@ -1601,9 +1591,12 @@ function handleAction(action, target) {
       render();
       break;
     case "request-mode-switch":
-      state.pendingModeSelection = target.dataset.mode || "Stimulation";
+      state.modeName = target.dataset.mode || "Stimulation";
+      state.activeProgramName = "";
+      state.pendingModeSelection = "";
       state.pendingProgramRun = "";
-      render();
+      persistState();
+      finishRhythmSelection();
       break;
     case "cancel-rhythm-confirmation":
       state.pendingProgramRun = "";

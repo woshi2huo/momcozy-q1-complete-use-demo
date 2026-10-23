@@ -1,0 +1,70 @@
+.mode-list-backdrop,
+.mode-list-sheet {
+  position: absolute;
+  inset: 0;
+}
+
+.mode-list-backdrop {
+  background: #7c7773;
+  pointer-events: none;
+}
+
+.mode-list-backdrop .phone-image {
+  clip-path: inset(0 0 86%);
+}
+
+.mode-list-sheet {
+  clip-path: inset(14% 0 0);
+}
+
+.motion-previous-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 90;
+  overflow: hidden;
+  border-radius: inherit;
+  background: #fff;
+  pointer-events: none;
+}
+
+.motion-touch {
+  position: absolute;
+  z-index: 100;
+  width: 44px;
+  height: 44px;
+  margin: -22px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(171, 42, 80, 0.55), rgba(171, 42, 80, 0));
+  pointer-events: none;
+}
+
+.phone-frame button {
+  -webkit-tap-highlight-color: transparent;
+  transition-duration: 160ms;
+}
+
+.phone-frame button:not(.hotspot):not(.program-confirm-scrim):active {
+  scale: 0.97;
+  filter: brightness(0.96);
+}
+
+.phone-frame button:not(.hotspot):not(.program-confirm-scrim) {
+  transition-property: background, color, box-shadow, transform, opacity, scale, filter;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.control-light-toggle span {
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hold-finish-button::before {
+  transition-duration: 320ms, 120ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phone-frame button,
+  .control-light-toggle span,
+  .hold-finish-button::before {
+    transition: none !important;
+  }
+}

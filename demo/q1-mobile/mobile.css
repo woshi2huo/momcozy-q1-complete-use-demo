@@ -31,10 +31,6 @@ body {
   box-shadow: none;
 }
 
-[data-current-screen="control-program"] .phone-scroll {
-  padding-bottom: 126px;
-}
-
 @media (orientation: landscape) and (max-height: 500px) {
   .stage {
     background: #f4f3f2;
