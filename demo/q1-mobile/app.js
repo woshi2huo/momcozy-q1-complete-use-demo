@@ -61,7 +61,7 @@ const screenGroups = [
       { id: "control", label: "设备控制 · Standard mode", caption: "Q1 手动模式、参数与启动控制", image: "device-control.png", width: 375, height: 956, canvasHeight: 1025 },
       { id: "control-program", label: "设备控制 · Milk Collection Mode P1", caption: "Q1 Program 时间轴与启动控制", image: "device-control.png", width: 375, height: 956, canvasHeight: 1025 },
       { id: "pumping-active", label: "吸乳中", caption: "计时、暂停与完成本次吸乳", image: "device-control.png", width: 375, height: 956, canvasHeight: 1025 },
-      { id: "pumping-finish-log", label: "完成吸乳", caption: "补充本次左右侧吸乳量", image: "device-control.png", width: 375, height: 956, canvasHeight: 1025 },
+      { id: "pumping-finish-log", label: "完成吸乳", caption: "补充本次左右侧吸乳量", image: "device-control.png", width: 402, height: 874 },
       { id: "pumping-session-logged", label: "吸乳完成记录", caption: "本次吸乳数据已更新", image: "pumping-logged.png", width: 393, height: 852 }
     ]
   },
@@ -727,14 +727,21 @@ function renderPumpingActiveFooter() {
 }
 
 function renderPumpingFinishLog(screen) {
-  return `${renderPumpingActive(screen)}
+  const durationLabel = (seconds) => `${Math.floor(seconds / 60)} min ${seconds % 60} sec`;
+  const durations = [...new Set([state.pumpingSeconds, ...Array.from({ length: 60 }, (_, index) => (index + 1) * 60)])].sort((first, second) => first - second);
+  return `<div class="session-figma-backdrop"><div>${renderPumpingActive({ ...screen, canvasHeight: 1025 })}</div></div>
     <div class="modal-scrim"></div>
-    <section class="pumping-sheet session-pumping-sheet" role="dialog" aria-modal="true" aria-label="完成吸乳记录">
-      <header><button type="button" data-action="back" aria-label="返回已有计划子首页">${icon("x")}</button><strong>Log Pumping Amount</strong><span></span></header>
-      <p class="sheet-subtitle">Today · ${formatPumpingTime(state.pumpingSeconds)}</p>
-      ${renderAmountDials()}
-      <div class="session-duration-row"><span><strong>Duration</strong><small>Pumping time</small></span><b>${formatPumpingTime(state.pumpingSeconds)}</b></div>
-      <button type="button" class="sheet-save" data-action="save-pumping-session">Save</button>
+    <section class="session-figma-log" role="dialog" aria-modal="true" aria-label="完成吸乳记录">
+      ${baseImage({ ...screen, image: "pumping-finish-figma.png", canvasHeight: 874 }).replace("?v=", "?sheet=3&v=")}
+      ${figmaHotspot("back", "返回已有计划子首页", 4, 35.3, 12, 5.5)}
+      ${figmaHotspot("milk-left-up", "增加左侧奶量", 18.5, 63, 12, 2.7)}
+      ${figmaHotspot("milk-left-down", "减少左侧奶量", 18.5, 65.7, 12, 2.8)}
+      ${figmaHotspot("milk-right-up", "增加右侧奶量", 69.5, 63, 12, 2.7)}
+      ${figmaHotspot("milk-right-down", "减少右侧奶量", 69.5, 65.7, 12, 2.8)}
+      <div class="session-figma-amount left"><strong>${state.milkLeft}</strong><span>ml</span></div>
+      <div class="session-figma-amount right"><strong>${state.milkRight}</strong><span>ml</span></div>
+      <select class="session-figma-duration" data-session-duration aria-label="吸乳时长">${durations.map((seconds) => `<option value="${seconds}" ${seconds === state.pumpingSeconds ? "selected" : ""}>${durationLabel(seconds)}</option>`).join("")}</select>
+      ${figmaHotspot("save-pumping-session", "保存吸乳记录", 5, 90.2, 90, 6.1)}
     </section>`;
 }
 
@@ -1868,6 +1875,11 @@ document.addEventListener("input", (event) => {
 });
 
 document.addEventListener("change", (event) => {
+  if (event.target.matches("[data-session-duration]")) {
+    state.pumpingSeconds = clamp(Number(event.target.value), 1, 3600);
+    state.pumpingDuration = clamp(Math.round(state.pumpingSeconds / 60), 1, 60);
+    render();
+  }
   if (event.target.matches(".mobile-picker")) goTo(event.target.value);
   if (event.target.matches("[data-plan-age]")) {
     state.planAgeMonths = clamp(Number(event.target.value), 0, 36);

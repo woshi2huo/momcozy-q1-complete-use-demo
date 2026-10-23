@@ -1,5 +1,7 @@
 # Q1 Runtime Image Sources
 
+Completion sheet: `assets/hd/pumping-finish-figma.png` is a 3x PNG export of node `1094:20097` from file `GWaREkdfme4eVzdMQ4AY4v`, exported on 2026-10-23. Original typography, dial artwork, scale, and sheet gradient are retained beneath interactive controls.
+
 Verified for demo version `0.6.46` on October 22, 2026.
 
 - Figma file key: `GWaREkdfme4eVzdMQ4AY4v`
