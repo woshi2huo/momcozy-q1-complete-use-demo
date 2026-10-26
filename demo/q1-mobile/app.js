@@ -1041,6 +1041,7 @@ function renderFirmwareUpgrade(screen) {
 function renderScreen(screen) {
   switch (screen.id) {
     case "my-devices": return `${baseImage(screen)}
+      <span class="my-devices-model-patch" aria-hidden="true">Q1 Added</span>
       ${hotspot("open-manual-pairing", "添加设备", 84, 6, 14, 8)}
       ${hotspot("open-pump-subhome", "打开吸奶器子首页", 4, 14, 92, 7)}
       ${hotspot("open-initial-subhome", "Get Start · 初始子首页", 34, 35, 33, 7)}`;

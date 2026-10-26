@@ -488,6 +488,34 @@ button {
   -webkit-user-drag: none;
 }
 
+.my-devices-model-patch {
+  position: absolute;
+  z-index: 3;
+  top: 151px;
+  left: 282px;
+  display: flex;
+  width: 72px;
+  height: 27px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #fff9c9;
+  color: #93673e;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+@media (min-width: 410px) and (max-width: 600px) {
+  [data-current-screen="my-devices"] .phone-image {
+    width: calc(100% + 10px);
+    max-width: none;
+    transform: translateX(-5px);
+  }
+}
+
 .hotspot {
   position: absolute;
   z-index: 4;
