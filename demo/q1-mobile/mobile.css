@@ -22,7 +22,12 @@ body {
   overflow-y: auto;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
   background: #f9f7f5;
+}
+
+.stage::-webkit-scrollbar {
+  display: none;
 }
 
 .phone-slot {
@@ -33,6 +38,32 @@ body {
   border: 0;
   border-radius: 0;
   box-shadow: none;
+}
+
+@media (orientation: portrait) and (max-width: 600px) and (min-height: 800px) {
+  [data-current-screen="control"] .phone-scroll,
+  [data-current-screen="control-program"] .phone-scroll {
+    overflow-y: hidden;
+  }
+
+  [data-current-screen="control"] .control-scroll-content,
+  [data-current-screen="control-program"] .control-scroll-content {
+    width: 100%;
+    height: 748px;
+    overflow: hidden;
+  }
+
+  [data-current-screen="control"] .control-scroll-content > .phone-canvas {
+    width: 480.6px !important;
+    transform: scale(0.8365);
+    transform-origin: top left;
+  }
+
+  [data-current-screen="control-program"] .control-scroll-content > .phone-canvas {
+    width: 458px !important;
+    transform: scale(0.8777);
+    transform-origin: top left;
+  }
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
