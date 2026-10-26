@@ -4,7 +4,7 @@ window.Q1_IMAGE_ASSETS = {
   "auto-discovery-iphone17.png": "./assets/optimized/auto-discovery-iphone17.186bb6f88c.webp",
   "cozie-ai-pumping.png": "./assets/optimized/cozie-ai-pumping.d22dd59d2b.webp",
   "cozy-assistant.png": "./assets/optimized/cozy-assistant.ab2af5dabc.webp",
-  "device-control.png": "./assets/optimized/device-control.c269902a6f.webp",
+  "device-control.png": "./assets/optimized/device-control.d4de3448c9.webp",
   "firmware-alert.png": "./assets/optimized/firmware-alert.c99d892578.webp",
   "firmware-upgrade.png": "./assets/optimized/firmware-upgrade.e28b4b4f1a.webp",
   "manual-add-iphone17.png": "./assets/optimized/manual-add-iphone17.0b46ee4d08.webp",
