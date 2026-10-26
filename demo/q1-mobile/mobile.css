@@ -40,10 +40,35 @@ body {
   box-shadow: none;
 }
 
+@media (orientation: portrait) and (max-width: 600px) {
+  [data-current-screen="control"] .phone-scroll,
+  [data-current-screen="control-program"] .phone-scroll {
+    bottom: calc(101px + max(25px, env(safe-area-inset-bottom)));
+  }
+
+  .control-sticky-footer {
+    height: calc(101px + max(25px, env(safe-area-inset-bottom)));
+    padding-bottom: max(25px, env(safe-area-inset-bottom));
+  }
+
+  [data-current-screen="pumping-active"] .phone-scroll {
+    bottom: calc(84px + max(26px, env(safe-area-inset-bottom)));
+  }
+
+  .pumping-active-footer {
+    height: calc(84px + max(26px, env(safe-area-inset-bottom)));
+    padding-bottom: max(26px, env(safe-area-inset-bottom));
+  }
+
+  .pumping-paused-badge {
+    bottom: calc(94px + max(26px, env(safe-area-inset-bottom)));
+  }
+}
+
 @media (orientation: portrait) and (max-width: 600px) and (min-height: 800px) {
   [data-current-screen="control"] .phone-scroll,
   [data-current-screen="control-program"] .phone-scroll {
-    overflow-y: hidden;
+    overflow-y: auto;
   }
 
   [data-current-screen="control"] .control-scroll-content,

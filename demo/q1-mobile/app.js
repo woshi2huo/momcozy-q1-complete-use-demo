@@ -1225,9 +1225,14 @@ function fitFrame() {
   const scale = isPortraitMobile
     ? stage.clientWidth / width
     : Math.min(stage.clientWidth / width, stage.clientHeight / height, 1);
+  const hasControlFooter = ["control", "control-program", "pumping-active"].includes(stage.dataset.currentScreen);
+  const frameHeight = isPortraitMobile && hasControlFooter
+    ? Math.min(height, stage.clientHeight / scale)
+    : height;
+  frame.style.height = `${frameHeight}px`;
   frame.style.transform = `scale(${scale})`;
   slot.style.width = `${width * scale}px`;
-  slot.style.height = `${height * scale}px`;
+  slot.style.height = `${frameHeight * scale}px`;
 }
 
 function goTo(screenId, push = true) {
