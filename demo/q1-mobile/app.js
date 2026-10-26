@@ -6,7 +6,7 @@ const QUICK_DELAY = Object.freeze({
   autoDiscovery: 400,
   autoConnect: 350,
   manualScan: 500,
-  sessionLogged: 800
+  sessionLogged: 400
 });
 
 // Source dimensions are retained for reference; every screen renders in DEVICE_VIEWPORT.
@@ -913,24 +913,31 @@ function preloadRuntimeImages() {
     "my-devices": ["lactation-empty", "home"],
     "lactation-empty": ["control", "plan-intro", "pumping-log", "mode-list"],
     "lactation-recorded": ["control", "plan-intro", "pumping-log", "mode-list"],
-    "home": ["control", "mode-list", "cozie-ai-pumping"],
+    "home": ["control", "plan-intro", "mode-list", "cozie-ai-pumping"],
     "control": ["mode-list", "settings", "pumping-finish-log"],
     "control-program": ["mode-list", "settings", "pumping-finish-log"],
-    "pumping-active": ["pumping-finish-log", "mode-list", "home"],
-    "pumping-finish-log": ["pumping-session-logged", "home"],
+    "pumping-active": ["pumping-finish-log", "home", "pumping-session-logged", "mode-list"],
+    "pumping-finish-log": ["home", "pumping-session-logged"],
     "pumping-session-logged": ["home"],
     "mode-list": ["control", "program-detail", "program-new", "program-detail-section"],
     "program-detail": ["program-section-create", "program-mode-selection"],
     "program-detail-section": ["program-detail-actions", "program-mode-selection"],
-    "plan-schedule": ["home"],
+    "plan-intro": ["plan-form", "plan-loading", "plan-schedule"],
+    "plan-form": ["plan-loading", "plan-schedule", "home"],
+    "plan-loading": ["plan-schedule", "home"],
+    "plan-schedule": ["home", "control"],
     "settings": ["firmware-alert", "control"]
   };
   const index = screens.findIndex((screen) => screen.id === state.currentId);
   const nextIds = nextScreens[state.currentId] || screens.slice(index + 1, index + 3).map((screen) => screen.id);
+  const isFinishingSession = ["pumping-finish-log", "pumping-session-logged"].includes(state.currentId);
+  const homeImage = state.currentId === "pumping-active" || isFinishingSession
+    ? "subhome-plan-recorded.png"
+    : getSubhomeImage("planned");
   const names = nextIds.flatMap((id) => id === "home"
-    ? [getSubhomeImage("planned")]
+    ? [homeImage]
     : id === "pumping-finish-log" ? ["pumping-finish-figma.png"] : [screenById.get(id)?.image]);
-  if (state.currentId === "home") names.unshift("subhome-pumping-active.png");
+  if (state.currentId === "home") names.push("subhome-pumping-active.png");
   const currentImages = [...document.querySelectorAll("#phone-frame .phone-image")];
   const currentUrls = new Set(currentImages.filter((image) => getComputedStyle(image).display !== "none").map((image) => image.getAttribute("src")));
   preloadQueue = [];
@@ -940,7 +947,8 @@ function preloadRuntimeImages() {
     preloadQueue = nextQueue;
     window.setTimeout(runImagePreload, 0);
   };
-  Promise.all(currentImages.filter((image) => getComputedStyle(image).display !== "none").map((image) => image.decode().catch(() => {}))).then(start);
+  if (isFinishingSession) start();
+  else Promise.all(currentImages.filter((image) => getComputedStyle(image).display !== "none").map((image) => image.decode().catch(() => {}))).then(start);
 }
 
 function runImagePreload() {
@@ -1434,7 +1442,7 @@ function startUpgrade() {
 function startPlanGeneration() {
   if (state.planProgress >= 100 || planTimer) return;
   planTimer = setInterval(() => {
-    state.planProgress = Math.min(100, state.planProgress + 4);
+    state.planProgress = Math.min(100, state.planProgress + 8);
     const value = document.querySelector("[data-plan-progress]");
     const orbit = document.querySelector(".plan-progress-orbit");
     if (value) value.textContent = String(state.planProgress);
