@@ -368,8 +368,12 @@ function renderTopbar(screen) {
   </header>`;
 }
 
+function imageUrl(name) {
+  return window.Q1_IMAGE_ASSETS?.[name] || `./assets/hd/${name}?v=${VERSION}.${ASSET_REVISION}`;
+}
+
 function baseImage(screen) {
-  return `<img class="phone-image" src="./assets/hd/${screen.image}?v=${VERSION}.${ASSET_REVISION}" width="${DEVICE_VIEWPORT.width}" height="${screen.canvasHeight || DEVICE_VIEWPORT.height}" alt="${screen.label}" draggable="false" />`;
+  return `<img class="phone-image" src="${imageUrl(screen.image)}" decoding="async" fetchpriority="high" width="${DEVICE_VIEWPORT.width}" height="${screen.canvasHeight || DEVICE_VIEWPORT.height}" alt="${screen.label}" draggable="false" />`;
 }
 
 function renderPairingHome(screen) {
@@ -528,7 +532,7 @@ function renderLactationHome(screen, variant, interactive = true) {
          ${figmaHotspot("open-pumping-log", "记录吸乳量", 72, 58, 18, 15)}`;
 
   return `${baseImage(imageScreen)}
-    ${variant === "planned" ? `<img class="phone-image" data-home-pumping-card src="./assets/hd/subhome-pumping-active.png?v=${VERSION}.${ASSET_REVISION}" width="402" height="874" alt="" aria-hidden="true" draggable="false" style="position:absolute;inset:0;clip-path:inset(79.65% 0 0);pointer-events:none;display:${state.homePumpingActive ? "block" : "none"}" />` : ""}
+    ${variant === "planned" ? `<img class="phone-image" data-home-pumping-card src="${imageUrl("subhome-pumping-active.png")}" loading="lazy" decoding="async" width="402" height="874" alt="" aria-hidden="true" draggable="false" style="position:absolute;inset:0;clip-path:inset(79.65% 0 0);pointer-events:none;display:${state.homePumpingActive ? "block" : "none"}" />` : ""}
     <button type="button" class="subhome-ai-entry" data-action="open-subhome-ai" aria-label="打开 Cozie AI 助手"><img src="./assets/subhome-ai-entry.png" alt="" draggable="false" /></button>
     ${figmaHotspot("return-to-my-devices", "返回我的设备", 2, 6.5, 14, 7)}
     ${figmaHotspot("open-trend", "打开吸乳趋势详情", 4, 13.8, 92, 28.8)}
@@ -875,25 +879,73 @@ function updateControlUi() {
   if (lightValue) lightValue.textContent = state.lightMode;
 }
 
+let preloadGeneration = 0;
+let preloadQueue = [];
+let preloadRunning = false;
+const preloadedImages = new Set();
+
 function preloadRuntimeImages() {
-  const urls = [...new Set(screens.filter((screen) => screen.image).map((screen) => `./assets/hd/${screen.image}?v=${VERSION}.${ASSET_REVISION}`))];
-  urls.push(`./assets/q1-device.png?v=${VERSION}`);
-  urls.push(`./assets/cozy-assistant-rabbit.png?v=${VERSION}`);
-  let cursor = 0;
-  const schedule = window.requestIdleCallback
-    ? (callback) => window.requestIdleCallback(callback, { timeout: 350 })
-    : (callback) => window.setTimeout(callback, 0);
-  const loadBatch = () => {
-    urls.slice(cursor, cursor + 4).forEach((url) => {
+  const generation = ++preloadGeneration;
+  const nextScreens = {
+    "pairing-home": ["auto-discovery", "manual-add"],
+    "auto-discovery": ["auto-connecting", "auto-complete"],
+    "auto-connecting": ["auto-complete", "lactation-empty"],
+    "auto-complete": ["lactation-empty", "training-welcome"],
+    "manual-complete": ["control", "training-welcome"],
+    "my-devices": ["lactation-empty", "home"],
+    "lactation-empty": ["control", "plan-intro", "pumping-log"],
+    "lactation-recorded": ["control", "plan-intro", "pumping-log"],
+    "home": ["control", "mode-list", "cozie-ai-pumping"],
+    "control": ["mode-list", "settings", "pumping-finish-log"],
+    "control-program": ["mode-list", "settings", "pumping-finish-log"],
+    "pumping-active": ["pumping-finish-log", "mode-list", "home"],
+    "pumping-finish-log": ["pumping-session-logged", "home"],
+    "pumping-session-logged": ["home"],
+    "mode-list": ["control", "program-detail", "program-new"],
+    "program-detail": ["program-section-create", "program-mode-selection"],
+    "program-detail-section": ["program-detail-actions", "program-mode-selection"],
+    "plan-schedule": ["home"],
+    "settings": ["firmware-alert", "control"]
+  };
+  const index = screens.findIndex((screen) => screen.id === state.currentId);
+  const nextIds = nextScreens[state.currentId] || screens.slice(index + 1, index + 3).map((screen) => screen.id);
+  const names = nextIds.flatMap((id) => id === "home"
+    ? [getSubhomeImage("planned")]
+    : id === "pumping-finish-log" ? ["pumping-finish-figma.png"] : [screenById.get(id)?.image]);
+  if (state.currentId === "home") names.unshift("subhome-pumping-active.png");
+  const currentImages = [...document.querySelectorAll("#phone-frame .phone-image")];
+  const currentUrls = new Set(currentImages.filter((image) => getComputedStyle(image).display !== "none").map((image) => image.getAttribute("src")));
+  preloadQueue = [];
+  const nextQueue = [...new Set(names.filter(Boolean).map(imageUrl))].filter((url) => !currentUrls.has(url) && !preloadedImages.has(url));
+  const start = () => {
+    if (generation !== preloadGeneration) return;
+    preloadQueue = nextQueue;
+    const schedule = window.requestIdleCallback
+      ? (callback) => window.requestIdleCallback(callback, { timeout: 1500 })
+      : (callback) => window.setTimeout(callback, 200);
+    schedule(runImagePreload);
+  };
+  Promise.all(currentImages.filter((image) => getComputedStyle(image).display !== "none").map((image) => image.decode().catch(() => {}))).then(start);
+}
+
+async function runImagePreload() {
+  if (preloadRunning) return;
+  preloadRunning = true;
+  try {
+    while (preloadQueue.length) {
+      const url = preloadQueue.shift();
       const image = new Image();
       image.decoding = "async";
+      image.fetchPriority = "low";
       image.src = url;
-      image.decode?.().catch(() => {});
-    });
-    cursor += 4;
-    if (cursor < urls.length) schedule(loadBatch);
-  };
-  schedule(loadBatch);
+      try {
+        await image.decode();
+        preloadedImages.add(url);
+      } catch {}
+    }
+  } finally {
+    preloadRunning = false;
+  }
 }
 
 function renderProgramDetailSection(screen, actionsOpen = false) {
@@ -909,9 +961,9 @@ function renderProgramDetailSection(screen, actionsOpen = false) {
 }
 
 function renderProgramModeSelection(screen) {
-  return `<img class="phone-image program-mode-selection-backdrop" src="./assets/hd/device-control.png?v=${VERSION}" width="${DEVICE_VIEWPORT.width}" height="${DEVICE_VIEWPORT.height}" alt="" draggable="false" />
+  return `<img class="phone-image program-mode-selection-backdrop" src="${imageUrl("device-control.png")}" decoding="async" width="${DEVICE_VIEWPORT.width}" height="${DEVICE_VIEWPORT.height}" alt="" draggable="false" />
     <span class="program-mode-selection-scrim" aria-hidden="true"></span>
-    <img class="program-mode-selection-image" src="./assets/hd/${screen.image}?v=${VERSION}" width="${DEVICE_VIEWPORT.width}" height="${DEVICE_VIEWPORT.height}" alt="Mode Selection" draggable="false" />
+    <img class="program-mode-selection-image" src="${imageUrl(screen.image)}" decoding="async" width="${DEVICE_VIEWPORT.width}" height="${DEVICE_VIEWPORT.height}" alt="Mode Selection" draggable="false" />
     ${figmaHotspot("back", "关闭 Mode Selection", 88, 20, 10, 7)}
     ${figmaHotspot("open-program-new", "Create Program", 76, 28, 22, 7)}
     ${figmaHotspot("select-saved-program", "选择 Milk Boost Mode P1", 4, 35, 92, 20)}
@@ -1142,6 +1194,7 @@ function render() {
   if (isPumpingSessionRunning()) startPumpingClock();
   if (screen.id === "pumping-session-logged") scheduleSessionLoggedTransition();
   schedulePairingFlow(screen.id);
+  preloadRuntimeImages();
 }
 
 function fitFrame() {
@@ -1902,4 +1955,3 @@ document.addEventListener("keydown", (event) => {
 
 window.addEventListener("resize", fitFrame);
 render();
-preloadRuntimeImages();

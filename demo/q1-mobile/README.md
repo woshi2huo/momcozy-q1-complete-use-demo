@@ -20,3 +20,7 @@ http://127.0.0.1:4173/demo/q1-mobile/
 https://woshi2huo.github.io/momcozy-q1-complete-use-demo/demo/q1-mobile/
 
 GitHub Pages 从 `main` 分支根目录发布，此目录推送后会随站点更新。该地址在发布成功后才可访问。
+
+页面使用 `assets/optimized/` 中的无损 WebP，`image-assets.js` 将原始文件名映射为带内容指纹的资源地址；原始高清素材保留在 `assets/hd/`。更新底图后，在项目根目录运行 `python3 demo/optimize-images.py`（需要 Pillow），重新生成两份 Demo 的资源，并更新 `index.html` 中 `image-assets.js` 的查询版本；如教学底图变化，还需同步 `styles.css` 中的视频背景地址及其查询版本。
+
+当前页面优先加载，后续页面按操作路径逐张预加载；切换页面会清空尚未开始的旧预加载任务。隐藏的首页运行态图片在需要时加载。
