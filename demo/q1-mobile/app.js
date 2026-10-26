@@ -154,11 +154,10 @@ const fallbackBackTargets = {
 };
 
 const savedState = loadSavedState();
-const initialHash = window.location.hash.slice(1);
 const state = {
-  currentId: screenById.has(initialHash) ? initialHash : "pairing-home",
+  currentId: "auto-discovery",
   bound: savedState.bound === true,
-  autoDiscoveryQueued: initialHash === "",
+  autoDiscoveryQueued: false,
   pairingProgress: 33,
   modeName: savedState.modeName || "Stimulation",
   level: clamp(Number(savedState.level) || 1, 1, 12),
@@ -197,7 +196,7 @@ const state = {
   sessionLoggedAutoAdvance: false,
   pendingProgramRun: "",
   pendingModeSelection: "",
-  activeProgramName: initialHash === "control-program" ? "Milk Collection Mode P1" : "",
+  activeProgramName: "",
   modeListReturnId: "",
   guideVideoPlaying: false
 };
@@ -751,8 +750,26 @@ function renderPumpingSessionLogged(screen) {
 }
 
 function renderModeList(screen) {
+  const modeSelectionTop = {
+    Stimulation: 284,
+    Expression: 371,
+    Mixed: 455,
+    "Milk initiation": 539
+  };
+  const selectedModeTop = state.activeProgramName ? null : modeSelectionTop[state.modeName];
+  const selectedMode = selectedModeTop == null
+    ? ""
+    : `<div class="mode-list-selection" style="top:${selectedModeTop}px" aria-hidden="true">${icon("audio-waveform")}</div>`;
+
   return `<div class="mode-list-backdrop" aria-hidden="true">${baseImage(screen)}</div>
     <div class="mode-list-sheet">${baseImage(screen)}
+    <div class="mode-list-stimulation-reset" aria-hidden="true">
+      <div class="mode-list-stimulation-card">
+        ${icon("heart")}
+        <span><strong>Stimulation</strong><small>Gentle and comfortable</small></span>
+      </div>
+    </div>
+    ${selectedMode}
     ${figmaHotspot("back", "关闭韵律列表", 2.8, 14.8, 14, 6.2)}
     ${figmaHotspot("request-mode-switch", "切换到 Stimulation", 3.8, 26.6, 92.4, 7.1, 'data-mode="Stimulation"')}
     ${figmaHotspot("request-mode-switch", "切换到 Expression", 3.8, 34.7, 92.4, 7.1, 'data-mode="Expression"')}
@@ -1491,6 +1508,8 @@ function handleAction(action, target) {
       break;
     case "finish-manual-pairing":
       state.bound = true;
+      state.modeName = "Stimulation";
+      state.activeProgramName = "";
       persistState();
       screenHistory.length = 0;
       state.currentId = "control";
@@ -1520,6 +1539,8 @@ function handleAction(action, target) {
     case "training-show-warning": showToast("Power off before cleaning and keep electronic parts dry"); break;
     case "training-open-control":
       state.bound = true;
+      state.modeName = "Stimulation";
+      state.activeProgramName = "";
       persistState();
       goTo("control");
       showToast("Device tutorial completed");
@@ -1613,7 +1634,12 @@ function handleAction(action, target) {
       render();
       showToast("AI lactation plan created");
       break;
-    case "open-control": goTo("control"); break;
+    case "open-control":
+      state.modeName = "Stimulation";
+      state.activeProgramName = "";
+      persistState();
+      goTo("control");
+      break;
     case "toggle-home-pumping":
       state.homePumpingActive = !state.homePumpingActive;
       state.pumpingPaused = !state.homePumpingActive;

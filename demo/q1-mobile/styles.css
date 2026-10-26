@@ -512,6 +512,81 @@ button {
   background: transparent;
 }
 
+.mode-list-stimulation-reset {
+  position: absolute;
+  z-index: 2;
+  top: 274px;
+  left: 10px;
+  box-sizing: border-box;
+  width: 382px;
+  height: 88px;
+  padding: 6px 5px;
+  background: #f7f5f4;
+  pointer-events: none;
+}
+
+.mode-list-stimulation-card {
+  box-sizing: border-box;
+  display: flex;
+  width: 364px;
+  height: 73px;
+  align-items: center;
+  gap: 25px;
+  padding: 0 37px;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.mode-list-stimulation-card > svg {
+  width: 27px;
+  height: 27px;
+  flex: 0 0 auto;
+  color: #ef846f;
+  stroke-width: 2.2;
+}
+
+.mode-list-stimulation-card span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mode-list-stimulation-card strong {
+  color: #302b2e;
+  font-size: 16px;
+  line-height: 1.1;
+}
+
+.mode-list-stimulation-card small {
+  color: #aaa3a6;
+  font-size: 13px;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.mode-list-selection {
+  position: absolute;
+  z-index: 3;
+  left: 15px;
+  box-sizing: border-box;
+  display: flex;
+  width: 372px;
+  height: 74px;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 20px;
+  border: 2px solid #9f2345;
+  border-radius: 16px;
+  color: #ad2d50;
+  pointer-events: none;
+}
+
+.mode-list-selection svg {
+  width: 29px;
+  height: 29px;
+  stroke-width: 2.2;
+}
+
 .logged-figma-hotspot {
   inset: 0;
   width: 100%;
@@ -1141,16 +1216,16 @@ button.pairing-add-device-button:focus-visible {
 }
 
 .auto-connecting-button {
-  top: 80.8%;
-  left: 8.3%;
+  top: 77.75%;
+  left: 10%;
   display: flex;
-  width: 83.4%;
-  height: 5.9%;
+  width: 80%;
+  height: 5.65%;
   align-items: center;
   justify-content: center;
   gap: 9px;
   border-radius: 999px;
-  background: #bcbcbc;
+  background: #333;
   color: #fff;
   font-size: 17px;
   font-weight: 500;
