@@ -56,16 +56,16 @@
         const openingList = snapshot.nextScreen === "mode-list";
         const closingList = snapshot.previousScreen === "mode-list" && backward;
         const distance = sameControl || openingList || closingList ? 0 : backward ? -18 : 22;
-        const duration = openingList ? 120 : closingList ? 280 : sameControl ? 160 : 260;
+        const duration = openingList ? 100 : closingList ? 160 : sameControl ? 100 : 160;
         for (const child of frame.children) {
           if (!openingList) animate(child, [{ opacity: 0.55, translate: `${distance}px 0` }, { opacity: 1, translate: "0 0" }], duration);
         }
         if (openingList) {
-          animate(frame.querySelector(".mode-list-sheet"), [{ translate: "0 86%" }, { translate: "0 0" }], 320);
-          animate(frame.querySelector(".mode-list-backdrop"), [{ opacity: 0 }, { opacity: 1 }], 180);
+          animate(frame.querySelector(".mode-list-sheet"), [{ translate: "0 86%" }, { translate: "0 0" }], 180);
+          animate(frame.querySelector(".mode-list-backdrop"), [{ opacity: 0 }, { opacity: 1 }], 120);
         }
         if (closingList) {
-          animate(snapshot.layer.querySelector(".mode-list-sheet"), [{ translate: "0 0" }, { translate: "0 86%" }], 280);
+          animate(snapshot.layer.querySelector(".mode-list-sheet"), [{ translate: "0 0" }, { translate: "0 86%" }], 160);
         }
         frame.append(snapshot.layer);
         const previousScroll = snapshot.layer.querySelector(".phone-scroll");
@@ -77,11 +77,11 @@
         animate(snapshot.closingDialog, [{ opacity: 1 }, { opacity: 0 }], 160)?.finished.then(() => snapshot.closingDialog.remove(), () => snapshot.closingDialog.remove());
       }
       if (changed || !snapshot.hadDialog) {
-        animate(frame.querySelector(".program-confirm-dialog"), [{ opacity: 0, translate: "0 14px", scale: "0.97" }, { opacity: 1, translate: "0 0", scale: "1" }], 240);
-        animate(frame.querySelector(".program-confirm-scrim"), [{ opacity: 0 }, { opacity: 1 }], 180);
+        animate(frame.querySelector(".program-confirm-dialog"), [{ opacity: 0, translate: "0 14px", scale: "0.97" }, { opacity: 1, translate: "0 0", scale: "1" }], 160);
+        animate(frame.querySelector(".program-confirm-scrim"), [{ opacity: 0 }, { opacity: 1 }], 120);
       }
       if (changed && snapshot.nextScreen === "pumping-finish-log") {
-        animate(frame.querySelector(".session-figma-log"), [{ translate: "0 48px", opacity: 0.4 }, { translate: "0 0", opacity: 1 }], 300);
+        animate(frame.querySelector(".session-figma-log"), [{ translate: "0 48px", opacity: 0.4 }, { translate: "0 0", opacity: 1 }], 180);
       }
     }
   };

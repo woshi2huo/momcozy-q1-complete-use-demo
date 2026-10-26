@@ -898,27 +898,28 @@ function updateControlUi() {
 
 let preloadGeneration = 0;
 let preloadQueue = [];
-let preloadRunning = false;
+let preloadRunning = 0;
 const preloadedImages = new Set();
+const preloadingImages = new Set();
 
 function preloadRuntimeImages() {
   const generation = ++preloadGeneration;
   const nextScreens = {
     "pairing-home": ["auto-discovery", "manual-add"],
-    "auto-discovery": ["auto-connecting", "auto-complete"],
+    "auto-discovery": ["auto-connecting", "auto-complete", "lactation-empty"],
     "auto-connecting": ["auto-complete", "lactation-empty"],
     "auto-complete": ["lactation-empty", "training-welcome"],
     "manual-complete": ["control", "training-welcome"],
     "my-devices": ["lactation-empty", "home"],
-    "lactation-empty": ["control", "plan-intro", "pumping-log"],
-    "lactation-recorded": ["control", "plan-intro", "pumping-log"],
+    "lactation-empty": ["control", "plan-intro", "pumping-log", "mode-list"],
+    "lactation-recorded": ["control", "plan-intro", "pumping-log", "mode-list"],
     "home": ["control", "mode-list", "cozie-ai-pumping"],
     "control": ["mode-list", "settings", "pumping-finish-log"],
     "control-program": ["mode-list", "settings", "pumping-finish-log"],
     "pumping-active": ["pumping-finish-log", "mode-list", "home"],
     "pumping-finish-log": ["pumping-session-logged", "home"],
     "pumping-session-logged": ["home"],
-    "mode-list": ["control", "program-detail", "program-new"],
+    "mode-list": ["control", "program-detail", "program-new", "program-detail-section"],
     "program-detail": ["program-section-create", "program-mode-selection"],
     "program-detail-section": ["program-detail-actions", "program-mode-selection"],
     "plan-schedule": ["home"],
@@ -933,35 +934,32 @@ function preloadRuntimeImages() {
   const currentImages = [...document.querySelectorAll("#phone-frame .phone-image")];
   const currentUrls = new Set(currentImages.filter((image) => getComputedStyle(image).display !== "none").map((image) => image.getAttribute("src")));
   preloadQueue = [];
-  const nextQueue = [...new Set(names.filter(Boolean).map(imageUrl))].filter((url) => !currentUrls.has(url) && !preloadedImages.has(url));
+  const nextQueue = [...new Set(names.filter(Boolean).map(imageUrl))].filter((url) => !currentUrls.has(url) && !preloadedImages.has(url) && !preloadingImages.has(url));
   const start = () => {
     if (generation !== preloadGeneration) return;
     preloadQueue = nextQueue;
-    const schedule = window.requestIdleCallback
-      ? (callback) => window.requestIdleCallback(callback, { timeout: 1500 })
-      : (callback) => window.setTimeout(callback, 200);
-    schedule(runImagePreload);
+    window.setTimeout(runImagePreload, 0);
   };
   Promise.all(currentImages.filter((image) => getComputedStyle(image).display !== "none").map((image) => image.decode().catch(() => {}))).then(start);
 }
 
-async function runImagePreload() {
-  if (preloadRunning) return;
-  preloadRunning = true;
-  try {
-    while (preloadQueue.length) {
-      const url = preloadQueue.shift();
-      const image = new Image();
-      image.decoding = "async";
-      image.fetchPriority = "low";
-      image.src = url;
-      try {
-        await image.decode();
-        preloadedImages.add(url);
-      } catch {}
-    }
-  } finally {
-    preloadRunning = false;
+function runImagePreload() {
+  while (preloadRunning < 2 && preloadQueue.length) {
+    const url = preloadQueue.shift();
+    if (preloadedImages.has(url) || preloadingImages.has(url)) continue;
+    preloadRunning += 1;
+    preloadingImages.add(url);
+    const image = new Image();
+    image.decoding = "async";
+    image.fetchPriority = "low";
+    image.src = url;
+    image.decode().then(() => {
+      preloadedImages.add(url);
+    }).catch(() => {}).finally(() => {
+      preloadingImages.delete(url);
+      preloadRunning -= 1;
+      runImagePreload();
+    });
   }
 }
 
