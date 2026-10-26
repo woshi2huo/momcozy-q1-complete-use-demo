@@ -1220,7 +1220,8 @@ function fitFrame() {
   const slot = document.getElementById("phone-slot");
   if (!stage || !frame || !slot) return;
   const { width, height } = DEVICE_VIEWPORT;
-  const scale = Math.min(stage.clientWidth / width, stage.clientHeight / height, 1);
+  const mobileScaleLimit = window.innerWidth <= 600 ? Number.POSITIVE_INFINITY : 1;
+  const scale = Math.min(stage.clientWidth / width, stage.clientHeight / height, mobileScaleLimit);
   frame.style.transform = `scale(${scale})`;
   slot.style.width = `${width * scale}px`;
   slot.style.height = `${height * scale}px`;
