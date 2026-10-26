@@ -3,10 +3,10 @@ const ASSET_REVISION = "15";
 const STORAGE_KEY = `momcozy-q1-mobile-v${VERSION}`;
 const DEVICE_VIEWPORT = Object.freeze({ width: 402, height: 874 });
 const QUICK_DELAY = Object.freeze({
-  autoDiscovery: 400,
-  autoConnect: 350,
-  manualScan: 500,
-  sessionLogged: 400
+  autoDiscovery: 180,
+  autoConnect: 180,
+  manualScan: 180,
+  sessionLogged: 120
 });
 
 // Source dimensions are retained for reference; every screen renders in DEVICE_VIEWPORT.
@@ -295,7 +295,7 @@ function persistState() {
 }
 
 function icon(name) {
-  return `<i data-lucide="${name}" aria-hidden="true"></i>`;
+  return window.Q1_ICONS[name] || "";
 }
 
 function hotspot(action, label, left, top, width, height, attributes = "") {
@@ -909,7 +909,15 @@ function preloadRuntimeImages() {
     "auto-discovery": ["auto-connecting", "auto-complete", "lactation-empty"],
     "auto-connecting": ["auto-complete", "lactation-empty"],
     "auto-complete": ["lactation-empty", "training-welcome"],
+    "manual-add": ["manual-scan", "manual-confirm", "manual-progress"],
+    "manual-scan": ["manual-confirm", "manual-progress", "manual-complete"],
+    "manual-confirm": ["manual-progress", "manual-complete", "control"],
+    "manual-progress": ["manual-complete", "control", "training-welcome"],
     "manual-complete": ["control", "training-welcome"],
+    "training-welcome": ["training-guide", "training-guide-final", "training-ready"],
+    "training-guide": ["training-guide-final", "training-ready", "cozy-assistant"],
+    "training-guide-final": ["training-ready", "control", "cozy-assistant"],
+    "training-ready": ["control", "cozy-assistant", "lactation-empty"],
     "my-devices": ["lactation-empty", "home"],
     "lactation-empty": ["control", "plan-intro", "pumping-log", "mode-list"],
     "lactation-recorded": ["control", "plan-intro", "pumping-log", "mode-list"],
@@ -938,10 +946,11 @@ function preloadRuntimeImages() {
     ? [homeImage]
     : id === "pumping-finish-log" ? ["pumping-finish-figma.png"] : [screenById.get(id)?.image]);
   if (state.currentId === "home") names.push("subhome-pumping-active.png");
-  const currentImages = [...document.querySelectorAll("#phone-frame .phone-image")];
+  const currentImages = [...document.querySelectorAll("#phone-frame img")];
   const currentUrls = new Set(currentImages.filter((image) => getComputedStyle(image).display !== "none").map((image) => image.getAttribute("src")));
   preloadQueue = [];
-  const nextQueue = [...new Set(names.filter(Boolean).map(imageUrl))].filter((url) => !currentUrls.has(url) && !preloadedImages.has(url) && !preloadingImages.has(url));
+  const allUrls = [...names.filter(Boolean).map(imageUrl), ...Object.values(window.Q1_IMAGE_ASSETS), "./assets/subhome-ai-entry.png", "./assets/control-header-actions.png", "./assets/cozy-assistant-rabbit.png"];
+  const nextQueue = [...new Set(allUrls)].filter((url) => !currentUrls.has(url) && !preloadedImages.has(url) && !preloadingImages.has(url));
   const start = () => {
     if (generation !== preloadGeneration) return;
     preloadQueue = nextQueue;
@@ -1205,7 +1214,6 @@ function render() {
 
   document.title = `${screen.label} · Momcozy Q1`;
   window.history.replaceState(null, "", `#${screen.id}`);
-  if (window.lucide) window.lucide.createIcons({ attrs: { "stroke-width": 1.8 } });
   requestAnimationFrame(() => {
     fitFrame();
     const phoneScroll = document.getElementById("phone-scroll");
@@ -1409,7 +1417,7 @@ function schedulePairingFlow(screenId) {
 function startPairingProgress() {
   state.pairingProgress = state.pairingProgress >= 100 ? 33 : clamp(state.pairingProgress, 33, 100);
   pairingProgressTimer = setInterval(() => {
-    state.pairingProgress = Math.min(100, state.pairingProgress + 1);
+    state.pairingProgress = Math.min(100, state.pairingProgress + 12);
     const value = document.querySelector("[data-pairing-progress]");
     if (value) value.textContent = String(state.pairingProgress);
     if (state.pairingProgress < 100) return;
@@ -1419,13 +1427,13 @@ function startPairingProgress() {
     persistState();
     goTo("manual-complete", false);
     showToast("Q1 connected successfully");
-  }, 55);
+  }, 25);
 }
 
 function startUpgrade() {
   if (state.progress >= 100 || upgradeTimer) return;
   upgradeTimer = setInterval(() => {
-    state.progress = Math.min(100, state.progress + 1);
+    state.progress = Math.min(100, state.progress + 15);
     const value = document.querySelector("[data-progress-value]");
     const meter = document.querySelector(".upgrade-meter");
     if (value) value.textContent = String(state.progress);
@@ -1436,13 +1444,13 @@ function startUpgrade() {
       render();
       showToast("Firmware update complete");
     }
-  }, 85);
+  }, 35);
 }
 
 function startPlanGeneration() {
   if (state.planProgress >= 100 || planTimer) return;
   planTimer = setInterval(() => {
-    state.planProgress = Math.min(100, state.planProgress + 8);
+    state.planProgress = Math.min(100, state.planProgress + 32);
     const value = document.querySelector("[data-plan-progress]");
     const orbit = document.querySelector(".plan-progress-orbit");
     if (value) value.textContent = String(state.planProgress);
@@ -1451,7 +1459,7 @@ function startPlanGeneration() {
     clearInterval(planTimer);
     planTimer = null;
     if (state.currentId === "plan-loading") goTo("plan-schedule", false);
-  }, 80);
+  }, 35);
 }
 
 function startPumpingClock() {
